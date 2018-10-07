@@ -169,12 +169,8 @@ public class SuperMarketManagement {
 	
 //	 这是添加商品的方法
 	public static void addCommodity() {
-		System.out.println("请输入添加商品的编号：");
-		int bh = SystemIn.nextInt();
-		commodityNumber[pos] = bh;
-		System.out.println("请输入添加商品的名称：");
-		String mc = SystemIn.nextLine();
-		commodityName[pos] = mc;
+		inputNumber();
+		inputName();
 		System.out.println("请输入添加商品的价格：");
 		float jg = SystemIn.nextFloat();
 		commodityPrice[pos] = jg;
@@ -264,6 +260,46 @@ public class SuperMarketManagement {
 		
 		commodityChoice();
 	}
+
+//  这是添加或更改商品时写入商品编号并判断写入的商品编号是否重复的方法
+	public static void inputNumber() {
+		System.out.println("请输入添加商品的编号：");
+		int bh = SystemIn.nextInt();
+		if(pos == 0) {
+			commodityNumber[pos] = bh;
+		}
+		else {
+			for(int i=0;i<pos;i++) {
+				if(commodityNumber[i] == bh) {
+					System.out.println("您输入的编号与已存储的商品编号重复！请重新输入！");
+					inputNumber();
+				}
+				else if(commodityNumber[i] != bh && i == pos-1) {
+					commodityNumber[pos] = bh;
+				}
+			}
+		}	
+	}
+
+//	这是添加或更改商品时写入商品名称并判断写入的商品名称是否重复的方法
+	public static void inputName() {
+		System.out.println("请输入添加商品的名称：");
+		String mc = SystemIn.nextLine();
+		if(pos == 0) {
+			commodityName[pos] = mc;
+		}
+		else {
+			for(int i=0;i<pos;i++) {
+				if(commodityName[i].equals(mc)) {
+					System.out.println("您输入的名称与已存储的商品名称重复！请重新输入！");
+					inputName();
+				}
+				else if(i == pos-1) {
+					commodityName[pos] = mc;
+				}
+			}
+		}	
+	}
 	
 //	这是更改商品详细属性的功能
 	public static void choiceUpdateCommodity(int i) {
@@ -324,6 +360,7 @@ public class SuperMarketManagement {
 			choiceUpdateCommodity(i);
 		}
 	}
+	
 //	这是更改完商品属性后选择是否继续更改的功能
 	public static void repeatChoiceUpdate(int i) {
 		System.out.println();
