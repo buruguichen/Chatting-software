@@ -8,6 +8,14 @@ import com.oraclesdp.common.SystemIn;
  *这是一个超市管理系统
  */
 public class SuperMarketManagement {
+	//这是存储商品数据的四个数组
+	static int[] commodityNumber = new int[50];
+	static String[] commodityName = new String[50];
+	static float[] commodityPrice = new float[50];
+	static int[] commodityAmount = new int[50];
+	
+	//这是新添加商品时的加入位置
+	static int pos = 0;
 	
 	//这是预设的超市管理员账号和密码
 	static String adminUsername = "Ruler";
@@ -65,6 +73,7 @@ public class SuperMarketManagement {
 		
 		if(username.equals(adminUsername) && password.equals(adminPassword)) {
 			System.out.println("登录成功！");
+			System.out.println();
 			showMainMenu();
 		}
 		else {
@@ -84,6 +93,275 @@ public class SuperMarketManagement {
 	 * 展示超市管理系统的各项功能
 	 */
 	public static void showMainMenu() {
-		System.out.println("333");
+		System.out.println("1.商品管理");
+		System.out.println("2.退出");
+		System.out.println();
+		System.out.println("请输入您的选择：");
+		int ChoiceMainMenuId = SystemIn.nextInt();
+		if(ChoiceMainMenuId == 1) {
+			commodityMenu();
+		}
+		else if(ChoiceMainMenuId == 2) {
+			System.exit(0);
+		}
+		else {
+			System.out.println("您的输入有误，请重新输入！");
+			showMainMenu();
+		}
+	}
+	
+	/*
+	 * 商品管理的子菜单项
+	 */
+	public static void commodityMenu() {
+		System.out.println("1.添加商品");
+		System.out.println("2.删除商品");
+		System.out.println("3.修改商品");
+		System.out.println("4.查看商品");
+		System.out.println("5.返回上页");
+		System.out.println("6.退出");
+		
+		choiceCommodityMenu();
+	}
+	
+	public static void choiceCommodityMenu() {
+		System.out.println("请输入您的选择：");
+		int ChoiceCommodityMenuId = SystemIn.nextInt();
+		System.out.println();
+		switch(ChoiceCommodityMenuId){
+			case 1:
+			{
+				addCommodity();
+				break;
+			}
+			case 2:
+			{
+				deleteCommodity();
+				break;
+			}
+			case 3:
+			{
+				updateCommodity();
+				break;
+			}
+			case 4:
+			{
+				showCommodity();
+				break;
+			}
+			case 5:
+			{
+				showMainMenu();
+			}
+			case 6:
+			{
+				System.exit(0);
+			}
+			default:
+			{
+				System.out.println("您的输入有误，请重新输入！");
+				choiceCommodityMenu();
+				break;
+			}
+		}
+	}
+	
+	
+//	 这是添加商品的方法
+	public static void addCommodity() {
+		System.out.println("请输入添加商品的编号：");
+		int bh = SystemIn.nextInt();
+		commodityNumber[pos] = bh;
+		System.out.println("请输入添加商品的名称：");
+		String mc = SystemIn.nextLine();
+		commodityName[pos] = mc;
+		System.out.println("请输入添加商品的价格：");
+		float jg = SystemIn.nextFloat();
+		commodityPrice[pos] = jg;
+		System.out.println("请输入添加商品的数量：");
+		int sl = SystemIn.nextInt();
+		commodityAmount[pos] = sl;
+		
+		System.out.println("商品编号     商品名称     "
+				+ "商品价格     商品数量");
+		System.out.println(commodityNumber[pos]+"        "+commodityName[pos]+"        "
+						+commodityPrice[pos]+"        "+commodityAmount[pos]);
+		
+		//将添加商品的位置后移一位
+		pos ++;
+		commodityChoice();
+	}
+	
+	
+//	  这是删除商品的方法
+	public static void deleteCommodity() {
+		if(pos == 0) {
+			System.out.println("仓库中没有商品存放，无法删除！");
+			commodityChoice();
+		}
+		else {
+			System.out.println("请输入删除商品的编号：");
+			int getBh = SystemIn.nextInt();
+			
+			for(int i=0;i<pos;i++) {
+				if(commodityNumber[i] == getBh) {
+					for(int j=i+1;j<pos;j++) {
+						commodityNumber[j-1] = commodityNumber[j];
+						commodityName[j-1] = commodityName[j];
+						commodityPrice[j-1] = commodityPrice[j];
+						commodityAmount[j-1] = commodityAmount[j];
+					}	
+					pos = pos - 1;
+					System.out.println("已成功删除该商品。");
+					break;
+				}
+				else if(commodityNumber[i] != getBh && i == pos-1) {
+					System.out.println("未检索到所删除商品的编号，请重新输入！");
+					deleteCommodity();
+				}
+			}
+			commodityChoice();
+		}
+	}
+	
+//	这是更改商品的方法
+	public static void updateCommodity() {
+		if(pos == 0) {
+			System.out.println("仓库中没有商品存放，无法更改！");
+			commodityChoice();
+		}
+		else {
+			System.out.println("请输入更改商品的编号：");
+			int getBh = SystemIn.nextInt();
+			
+			for(int i=0;i<pos;i++) {
+				if(commodityNumber[i] == getBh) {
+					System.out.println("要更改的商品信息为：");
+					System.out.println(commodityNumber[i]+"        "+commodityName[i]+"        "
+							+commodityPrice[i]+"        "+commodityAmount[i]);	
+					
+					choiceUpdateCommodity(i);
+					break;
+				}
+				else if(commodityNumber[i] != getBh && i == pos-1) {
+					System.out.println("未检索到所要更改商品的编号，请重新输入！");
+					updateCommodity();
+				}
+			}
+			
+		}
+		
+	}
+	
+//	这是展示商品的方法
+	public static void showCommodity() {
+		System.out.println("商品编号     商品名称     "
+				+ "商品价格     商品数量");
+		for(int i=0;i<pos;i++) {
+			System.out.println(commodityNumber[i]+"        "+commodityName[i]+"        "
+							+commodityPrice[i]+"        "+commodityAmount[i]);
+		}
+		
+		commodityChoice();
+	}
+	
+//	这是更改商品详细属性的功能
+	public static void choiceUpdateCommodity(int i) {
+		System.out.println("请选择更改商品的详细属性：");
+		System.out.println("1.编号    2.名称    3.价格    4.数量    5.全部更改    6.返回商品管理菜单");
+		System.out.println("请输入您的选择：");
+		int ChoiceUpdate = SystemIn.nextInt();
+		if(ChoiceUpdate == 1) {
+			System.out.println("请输入新的编号：");
+			int newBh = SystemIn.nextInt();
+			commodityNumber[i] = newBh;
+			System.out.println("已成功更改该商品。");
+			repeatChoiceUpdate(i);
+		}
+		else if(ChoiceUpdate == 2) {
+			System.out.println("请输入新的名称：");
+			String newMc = SystemIn.nextLine();
+			commodityName[i] = newMc;
+			System.out.println("已成功更改该商品。");
+			repeatChoiceUpdate(i);
+		}
+		else if(ChoiceUpdate == 3) {
+			System.out.println("请输入新的价格：");
+			float newJg = SystemIn.nextFloat();
+			commodityPrice[i] = newJg;
+			System.out.println("已成功更改该商品。");
+			repeatChoiceUpdate(i);
+		}
+		else if(ChoiceUpdate == 4) {
+			System.out.println("请输入新的数量：");
+			int newSl = SystemIn.nextInt();
+			commodityAmount[i] = newSl;
+			System.out.println("已成功更改该商品。");
+			repeatChoiceUpdate(i);
+		}
+		else if(ChoiceUpdate == 5) {
+			System.out.println("请输入新的编号：");
+			int newBh = SystemIn.nextInt();
+			commodityNumber[i] = newBh;
+			System.out.println("请输入新的名称：");
+			String newMc = SystemIn.nextLine();
+			commodityName[i] = newMc;
+			System.out.println("请输入新的价格：");
+			float newJg = SystemIn.nextFloat();
+			commodityPrice[i] = newJg;
+			System.out.println("请输入新的数量：");
+			int newSl = SystemIn.nextInt();
+			commodityAmount[i] = newSl;
+			System.out.println("已成功更改该商品。");
+			repeatChoiceUpdate(i);
+		}
+		else if(ChoiceUpdate == 6) {
+			System.out.println();
+			commodityMenu();
+		}
+		else {
+			System.out.println("您的输入有误。请重新输入！");
+			choiceUpdateCommodity(i);
+		}
+	}
+//	这是更改完商品属性后选择是否继续更改的功能
+	public static void repeatChoiceUpdate(int i) {
+		System.out.println();
+		System.out.println("1.继续更改");
+		System.out.println("2.返回商品管理菜单");
+		System.out.println("请选择：");
+		int ChoiceUpdate = SystemIn.nextInt();
+		if(ChoiceUpdate == 1) {
+			System.out.println();
+			choiceUpdateCommodity(i);
+		}
+		else if(ChoiceUpdate == 2) {
+			System.out.println();
+			commodityMenu();
+		}
+		else {
+			System.out.println("您的输入有误。请重新输入！");
+			repeatChoiceUpdate(i);
+		}
+	}
+	
+//	这是每次对商品操作后，选择返回商品管理菜单还是退出的功能
+	public static void commodityChoice() {
+		System.out.println();
+		System.out.println("1.返回商品管理菜单");
+		System.out.println("2.退出");
+		System.out.println("请选择：");
+		int choice = SystemIn.nextInt();
+		if(choice == 1) {
+			System.out.println();
+			commodityMenu();
+		}
+		else if(choice == 2) {
+			System.exit(0);
+		}
+		else {
+			System.out.println("您的输入有误。请重新输入！");
+			commodityChoice();
+		}
 	}
 }
