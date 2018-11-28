@@ -2,6 +2,7 @@ package chatModel;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public class Message implements Serializable{
 	private User from;
@@ -9,7 +10,7 @@ public class Message implements Serializable{
 	private String content;
 	private String type;
 	private String date;
-	private List<String> allUser;
+	private Map<Long, String> allUser;
 	public Message() {
 		super();
 	}
@@ -51,10 +52,10 @@ public class Message implements Serializable{
 	public void setDate(String date) {
 		this.date = date;
 	}
-	public List<String> getAllUser() {
+	public Map<Long, String> getAllUser() {
 		return allUser;
 	}
-	public void setAllUser(List<String> allUser) {
+	public void setAllUser(Map<Long, String> allUser) {
 		this.allUser = allUser;
 	}
 	@Override

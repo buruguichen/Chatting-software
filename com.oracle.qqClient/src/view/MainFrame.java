@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -21,6 +22,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
+import chatModel.Message;
 import chatModel.User;
 
 public class MainFrame extends JFrame{
@@ -28,10 +30,10 @@ public class MainFrame extends JFrame{
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
 	private User loginUser;
-	private List<String> allUsers;
+	private Map<Long, String> allUsers;
 	private Map<String, ChatFrame> allChatWindows;
 	
-	public MainFrame (User loginUser, List<String> allUsers, ObjectInputStream in, ObjectOutputStream out) {
+	public MainFrame (User loginUser, Map<Long, String> allUsers, ObjectInputStream in, ObjectOutputStream out) {
 		this.loginUser = loginUser;
 		this.allUsers = allUsers;
 		this.in = in;
@@ -65,10 +67,12 @@ public class MainFrame extends JFrame{
 		contentPanel.add(loginUserSignature);
 		
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("所有好友");
-		for(String name: allUsers) {
-			MutableTreeNode  oneUser = new DefaultMutableTreeNode(name);
+		for(Map.Entry<Long, String> entry: allUsers.entrySet()) {
+			String numberAndName = entry.getValue() + "(" + entry.getKey() + ")";
+			MutableTreeNode oneUser = new DefaultMutableTreeNode(numberAndName);
 			root.add(oneUser);
 		}
+		
 		JTree tree = new JTree(root);
 		tree.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
@@ -79,7 +83,7 @@ public class MainFrame extends JFrame{
 							allChatWindows.get(userName).setVisible(true);
 						}
 						else {
-							ChatFrame c = new ChatFrame(userName, in, out);
+							ChatFrame c = new ChatFrame(loginUser,userName, in, out);
 							allChatWindows.put(userName, c);
 						}
 					}
@@ -90,6 +94,38 @@ public class MainFrame extends JFrame{
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setBounds(30, 100, 280, 550);
 		contentPanel.add(scroll);
+		
+		startMessageReciverThread();
 	}
 
+	//接收消息的方法
+	public void startMessageReciverThread() {
+		class MessageReciverThread extends Thread{
+			@Override
+			public void run() {
+				while(true) {
+					try {
+						Message message = (Message)in.readObject();
+						String userName = message.getFrom().getNickname() + "(" 
+									+ message.getFrom().getAccountNumber() + ")";
+						if(allChatWindows.containsKey(userName)) {
+							allChatWindows.get(userName).setVisible(true);
+							allChatWindows.get(userName).getChatShow().append(message.getFrom().getNickname() 
+										+ "\t" + message.getDate() + "\r\n" + message.getContent() + "\r\n\r\n");
+						}
+						else {
+							ChatFrame c = new ChatFrame(loginUser,userName, in, out);
+							c.getChatShow().append(message.getFrom().getNickname() + "\t" 
+										+ message.getDate() + "\r\n" + message.getContent() + "\r\n\r\n");
+							allChatWindows.put(userName, c);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					} 
+				}
+			}
+		}
+		
+		new MessageReciverThread().start();
+	}
 }

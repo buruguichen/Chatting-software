@@ -2,13 +2,18 @@ package view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+
+import chatModel.Message;
+import chatModel.User;
 
 public class ChatFrame extends JFrame{
 	private JTextArea chatShow, chatSend;
@@ -17,8 +22,15 @@ public class ChatFrame extends JFrame{
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
 	private String friendName;
+	private User ownUser;
 	
-	public ChatFrame(String friendName, ObjectInputStream in, ObjectOutputStream out) {
+	
+	public JTextArea getChatShow() {
+		return chatShow;
+	}
+
+	public ChatFrame(User ownUser, String friendName, ObjectInputStream in, ObjectOutputStream out) {
+		this.ownUser = ownUser;
 		this.friendName = friendName;
 		this.in = in;
 		this.out = out;
@@ -72,6 +84,28 @@ public class ChatFrame extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			String willSendText = chatSend.getText();
 			chatSend.setText("");
+			
+			chatShow.append(ownUser.getNickname() + "\t" + new Date().toLocaleString() + "\r\n" + willSendText + "\r\n\r\n");
+			Long friendNumber = Long.parseLong(friendName.substring(friendName.length()-6, friendName.length()-1));
+			Message willSendMessage = new Message();
+			willSendMessage.setFrom(ownUser);
+			willSendMessage.setTo(new User(friendNumber, null));
+			willSendMessage.setContent(willSendText);
+			willSendMessage.setType("textMessage");
+			
+			try {
+				out.writeObject(willSendMessage);
+				out.flush();
+//				try {
+//					Message resultMessage = (Message)in.readObject();
+//					System.out.println(resultMessage);
+//				} catch (ClassNotFoundException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 }

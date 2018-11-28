@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import chatModel.User;
 
@@ -61,16 +63,17 @@ public class UserOperate {
 	}
 	
 	//读取注册的所有用户的账号和昵称
-	public static List<String> listAllUserNames(){
-		List<String> allNames = new ArrayList<>();
+	public static Map<Long, String> listAllUserNames(){
+		Map<Long, String> allNames = new HashMap<>();
 		File file = new File("datas");
 		File[] childs = file.listFiles();
 		for(int i=0; i<childs.length; i++) {
 			try {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(childs[i]));
-				String nickName = ((User)in.readObject()).getNickname();
-				String accountNumber = childs[i].getName();
-				allNames.add(nickName + "(" + accountNumber.substring(0, accountNumber.length()-5) + ")");
+				User user = (User)in.readObject();
+				String nickName = user.getNickname();
+				Long accountNumber = user.getAccountNumber();
+				allNames.put(accountNumber, nickName);
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
@@ -84,10 +87,10 @@ public class UserOperate {
 		register(a2);
 		System.out.println(a1);
 		System.out.println(a2);
-		List<String> list = listAllUserNames();
-		for(String a: list) {
-			System.out.println(a);
-		}
+		Map<Long, String> map = listAllUserNames();
+//		for(String a: map.get)) {
+//			System.out.println(a);
+//		}
 		
 	}
 
