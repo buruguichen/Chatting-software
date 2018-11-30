@@ -66,12 +66,15 @@ public class MainFrame extends JFrame{
 		loginUserSignature.setBorder(BorderFactory.createLineBorder(Color.gray));
 		contentPanel.add(loginUserSignature);
 		
+		
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("所有好友");
 		for(Map.Entry<Long, String> entry: allUsers.entrySet()) {
 			String numberAndName = entry.getValue() + "(" + entry.getKey() + ")";
 			MutableTreeNode oneUser = new DefaultMutableTreeNode(numberAndName);
 			root.add(oneUser);
 		}
+		MutableTreeNode oneUser = new DefaultMutableTreeNode("全部好友");
+		root.add(oneUser);
 		
 		JTree tree = new JTree(root);
 		tree.addMouseListener(new MouseAdapter() {
@@ -106,17 +109,25 @@ public class MainFrame extends JFrame{
 				while(true) {
 					try {
 						Message message = (Message)in.readObject();
-						String userName = message.getFrom().getNickname() + "(" 
+						String userName;
+						if(message.getTo().getAccountNumber() == 255) {
+							userName = "全部好友";
+						}
+						else
+							userName = message.getFrom().getNickname() + "(" 
 									+ message.getFrom().getAccountNumber() + ")";
 						if(allChatWindows.containsKey(userName)) {
-							allChatWindows.get(userName).setVisible(true);
-							allChatWindows.get(userName).getChatShow().append(message.getFrom().getNickname() 
-										+ "\t" + message.getDate() + "\r\n" + message.getContent() + "\r\n\r\n");
+							ChatFrame c = allChatWindows.get(userName);
+							c.setVisible(true);
+							c.getChatShow().append(message.getFrom().getNickname() + "\t" 
+										+ message.getDate() + "\r\n" + message.getContent() + "\r\n\r\n");
+							c.getChatShow().setCaretPosition(c.getChatShow().getText().length());
 						}
 						else {
 							ChatFrame c = new ChatFrame(loginUser,userName, in, out);
 							c.getChatShow().append(message.getFrom().getNickname() + "\t" 
 										+ message.getDate() + "\r\n" + message.getContent() + "\r\n\r\n");
+							c.getChatShow().setCaretPosition(c.getChatShow().getText().length());
 							allChatWindows.put(userName, c);
 						}
 					} catch (Exception e) {

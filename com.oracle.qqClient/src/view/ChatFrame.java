@@ -82,11 +82,18 @@ public class ChatFrame extends JFrame{
 	
 	class sendActionListener implements ActionListener{
 		public void actionPerformed(ActionEvent e) {
+			Long friendNumber;
 			String willSendText = chatSend.getText();
 			chatSend.setText("");
 			
 			chatShow.append(ownUser.getNickname() + "\t" + new Date().toLocaleString() + "\r\n" + willSendText + "\r\n\r\n");
-			Long friendNumber = Long.parseLong(friendName.substring(friendName.length()-6, friendName.length()-1));
+			chatShow.setCaretPosition(chatShow.getText().length());
+			if(friendName.equals("全部好友")) {
+				//将账号255作为群聊的标识
+				friendNumber = 255L;
+			}
+			else
+				friendNumber = Long.parseLong(friendName.substring(friendName.length()-6, friendName.length()-1));
 			Message willSendMessage = new Message();
 			willSendMessage.setFrom(ownUser);
 			willSendMessage.setTo(new User(friendNumber, null));

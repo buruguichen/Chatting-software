@@ -19,8 +19,12 @@ public class UserOperate {
 	private static long originalAccountNumber = 10000;
 	
 	//登录方法
-	public static User login(long accountNumber,String password) {
+	public static User login(long accountNumber,String password, Map<Long, ObjectOutputStream> allSockets) {
 		try {
+			if(allSockets.containsKey(accountNumber)) {
+				User user = new User(-1, "");
+				return user;
+			}
 			File file = new File("datas");
 			File[] childs = file.listFiles();
 			for(int i=0; i<childs.length; i++) {

@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import chatModel.Message;
 import chatModel.User;
@@ -66,9 +67,9 @@ public class Server {
 						out.flush();
 					}else if(message.getType().equals("login")) {
 						User loginUser = message.getFrom();
-						User user = UserOperate.login(loginUser.getAccountNumber(), loginUser.getPassword());
+						User user = UserOperate.login(loginUser.getAccountNumber(), loginUser.getPassword(), allSockets);
 						System.out.println("登陆者为：" + user);
-						if(user != null) {
+						if(user != null || user.getAccountNumber() != -1) {
 							allSockets.put(user.getAccountNumber(), out);
 						}
 						Message loginResult = new Message();
@@ -79,19 +80,38 @@ public class Server {
 					}else if(message.getType().equals("textMessage")) {
 						System.out.println("接收到文本消息:" + message.getContent());
 						long reciveUserNumber = message.getTo().getAccountNumber();
-						if(allSockets.containsKey(reciveUserNumber)) {
+						if(reciveUserNumber == 255) {
 							message.setDate(new Date().toLocaleString());
-							allSockets.get(reciveUserNumber).writeObject(message);
-							allSockets.get(reciveUserNumber).flush();
-							System.out.println("转出消息");
+							for(Long number: allSockets.keySet()) {
+								allSockets.get(number).writeObject(message);
+								allSockets.get(number).flush();
+							}
+							System.out.println("转出群聊消息");
 						}
 						else {
-							System.out.println("此用户不在线，不转发");
+							if(allSockets.containsKey(reciveUserNumber)) {
+								message.setDate(new Date().toLocaleString());
+								allSockets.get(reciveUserNumber).writeObject(message);
+								allSockets.get(reciveUserNumber).flush();
+								System.out.println("转出消息");
+							}
+							else {
+								System.out.println("此用户不在线，不转发");
+							}
 						}
+						
 					}
 				}
 			} catch(Exception e) {
 				e.printStackTrace();
+				for(Entry<Long, ObjectOutputStream> en: allSockets.entrySet()) {
+					if(en.getValue().equals(out)) {
+						Long number = en.getKey();
+						allSockets.remove(number);
+						System.out.println(number + "下线了");
+					}
+				}
+				
 			}
 		}
 	}
